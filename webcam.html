@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('/static/background.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        #video-container, #captured-container {
+            max-width: 80%; /* Limit maximum width to 80% */
+            margin-top: 60px;
+            margin-bottom: 20px;
+        }
+        video, #captured-image {
+            width: 100%;
+            height: auto;
+        }
+        #snap, #process-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            margin-bottom: 20px;
+        }
+        header {
+            background-color: #333; /* Dark gray background for header */
+            color: #fff; /* White text color for header */
+            padding: 20px; /* Padding inside header */
+            text-align: center; /* Center-align text */
+            width: 100%; /* Full width */  
+            font-size: 2.5rem; 
+            position: fixed;
+            top: 0;
+        }
+        footer {
+            background-color: #333; /* Dark gray background for footer */
+            color: #fff; /* White text color for footer */
+            padding: 10px; /* Padding inside footer */
+            text-align: center; /* Center-align text */
+            position: fixed; /* Fixed position at the bottom */
+            left: 0; /* Stick to the left side */
+            bottom: 0; /* Stick to the bottom */
+            width: 100%; /* Full width */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Image Capturing!
+    </header>
+    <div class="container">
+        <div id="video-container">
+            <video id="video" autoplay></video>
+        </div>
+        <button id="snap">Capture Image</button>
+        <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+        <div id="captured-container" style="display: none;">
+            <img id="captured-image" src="">
+        </div>
+        <button id="process-btn" style="display: none;">Process Image</button>
+    </div>
+    <footer>
+        © 2024 Webcam App. All rights reserved.
+    </footer>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const snapBtn = document.getElementById('snap');
+        const capturedImage = document.getElementById('captured-image');
+        const processBtn = document.getElementById('process-btn');
+        const constraints = {
+            video: true
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(stream) {
+                video.srcObject = stream;
+            })
+            .catch(function(err) {
+                console.error('Error accessing the webcam: ', err);
+            });
+
+        snapBtn.addEventListener('click', function() {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, 640, 480);
+            capturedImage.src = canvas.toDataURL('image/jpeg');
+            document.getElementById('captured-container').style.display = 'block';
+            document.getElementById('snap').style.display = 'none'; // Hide the "Capture Image" button
+            document.getElementById('video-container').style.display = 'none'; // Hide the video container
+            document.getElementById('process-btn').style.display = 'block'; // Show the "Process Image" button
+        });
+
+        processBtn.addEventListener('click', function() {
+            // Send the captured image to the server for processing
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/process_webcam_image', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Redirect to the result page
+                    window.location.href = '/result';
+                }
+            };
+            xhr.send(JSON.stringify({ image: capturedImage.src }));
+        });
+    </script>
+</body>
+</html>

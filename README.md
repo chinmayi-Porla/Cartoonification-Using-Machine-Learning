@@ -1,7 +1,7 @@
 
 
 ```markdown
-# 🎨 Cartoonification Using Machine Learning
+# 🎨 Cartoonify: AI-Powered Image Transformation
 
 This project transforms normal images and webcam videos into cartoon-style visuals using image processing and basic machine learning techniques. The aim is to apply a creative and engaging visual transformation using computer vision, suitable for social media filters, mobile applications, and creative editing tools.
 
